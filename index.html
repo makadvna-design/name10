@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="tg">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SafeVault - Minimalist Password Manager</title>
+    <!-- Нишонаҳо (Font Awesome Icons) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #09090b;
+            --panel-bg: rgba(24, 24, 27, 0.75);
+            --panel-border: rgba(255, 255, 255, 0.08);
+            --text-primary: #f4f4f5;
+            --text-secondary: #a1a1aa;
+            --accent: #ffffff;
+            --accent-hover: #e4e4e7;
+            --card-hover: rgba(255, 255, 255, 0.04);
+            --danger: #ef4444;
+            --danger-hover: #dc2626;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* --- Sidebar (Панели Чап) --- */
+        .sidebar {
+            width: 260px;
+            background: #0d0d0f;
+            border-right: 1px solid var(--panel-border);
+            display: flex;
+            flex-direction: column;
+            padding: 24px;
+            position: fixed;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 40px;
+            color: var(--text-primary);
+        }
+
+        .logo i {
+            color: var(--bg-color);
+            background: var(--text-primary);
+            padding: 8px;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+
+        .nav-links {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            flex-grow: 1;
+        }
+
+        .nav-links li {
+            margin-bottom: 6px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            transition: all 0.2s ease;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--text-primary);
+        }
+
+        .user-profile {
+            margin-top: auto;
+            border-top: 1px solid var(--panel-border);
+            padding-top: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 38px;
+            height: 38px;
+            background: #27272a;
+            color: var(--text-primary);
+            border: 1px solid var(--panel-border);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: 600;
+            font-size: 15px;
+        }
+
+        /* --- Main Content (Қисми Асосӣ) --- */
+        .main-content {
+            margin-left: 260px;
+            flex: 1;
+            padding: 40px;
+            box-sizing: border-box;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 35px;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+        }
+
+        .header-tools {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .search-bar {
+            position: relative;
+        }
+
+        .search-bar input {
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            color: var(--text-primary);
+            padding: 10px 16px 10px 42px;
+            border-radius: 12px;
+            width: 240px;
+            font-size: 14px;
+        }
+
+        .search-bar input:focus {
+            outline: none;
+            border-color: var(--text-primary);
+        }
+
+        .search-bar i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        /* --- Grid Layout --- */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+        }
+
+        .panel {
+            background: var(--panel-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--panel-border);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .panel-header h2 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        /* Fast Selection Tags */
+        .quick-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .tag {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--panel-border);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tag:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: var(--text-primary);
+        }
+
+        /* Saved Passwords Cards List */
+        .password-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--panel-border);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+
+        .password-card:hover {
+            background: var(--card-hover);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .password-info p {
+            margin: 3px 0;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .password-info p strong {
+            color: var(--text-primary);
+        }
+
+        code {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            color: #ffffff;
+        }
+
+        /* --- Forms & Buttons --- */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 11px 14px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--panel-border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--text-primary);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 11px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background-color: var(--accent);
+            color: var(--bg-color);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--accent-hover);
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: #ffffff;
+            width: auto;
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        .btn-danger:hover {
+            background-color: var(--danger-hover);
+        }
+
+        /* --- Auth Screen --- */
+        .auth-container {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: var(--bg-color);
+            z-index: 1000;
+        }
+
+        .auth-box {
+            width: 380px;
+            padding: 35px;
+            text-align: center;
+        }
+
+        .auth-box .logo {
+            justify-content: center;
+            margin-bottom: 25px;
+        }
+
+        .switch-auth {
+            margin-top: 20px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .switch-auth span {
+            color: var(--text-primary);
+            font-weight: 600;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- === 1. Саҳифаи Вуруд ва Сабти Ном === -->
+    <div class="auth-container" id="authScreen">
+        <div class="panel auth-box">
+            <div class="logo">
+                <i class="fas fa-shield-alt"></i>
+                <span>SafeVault</span>
+            </div>
+            <h2 id="authTitle" style="margin-bottom: 25px; font-size: 18px; font-weight: 600;">Воридшавӣ</h2>
+            
+            <div class="form-group" style="text-align: left;">
+                <label>Емаил</label>
+                <input type="email" id="authEmail" placeholder="user@example.com">
+            </div>
+            <div class="form-group" style="text-align: left;">
+                <label>Парол</label>
+                <input type="password" id="authPassword" placeholder="••••••••">
+            </div>
+            
+            <button class="btn btn-primary" id="authBtn" onclick="handleAuth()">Даромадан</button>
+            <div class="switch-auth" onclick="toggleAuthMode()">Ҳисоб надоред? <span>Сабти ном</span></div>
+        </div>
+    </div>
+
+    <!-- === 2. Саҳифаи Асосии Dashboard === -->
+    <div id="appScreen" style="display: none; width: 100%;">
+        
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <i class="fas fa-shield-alt"></i>
+                <span>SafeVault</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="#" class="active"><i class="fas fa-th-large"></i> Dashboard</a></li>
+                <li><a href="#"><i class="fas fa-key"></i> Паролҳо</a></li>
+                <li><a href="#"><i class="fas fa-user-shield"></i> Амният</a></li>
+                <li><a href="#"><i class="fas fa-cog"></i> Танзимот</a></li>
+            </ul>
+            <div class="user-profile">
+                <div class="user-avatar" id="userInitials">U</div>
+                <div style="overflow: hidden;">
+                    <div style="font-weight: 600; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" id="userName">User</div>
+                    <div style="color: var(--text-secondary); font-size: 11px;">PRO Аккаунт</div>
+                </div>
+                <a href="#" onclick="logout()" style="margin-left: auto; color: var(--text-secondary);"><i class="fas fa-sign-out-alt"></i></a>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <header>
+                <h1>Хуш омадед, <span id="helloName" style="color: var(--text-secondary);">Корбар</span> 👋</h1>
+                <div class="header-tools">
+                    <div class="search-bar">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="Ҷустуҷӯ...">
+                    </div>
+                </div>
+            </header>
+
+            <div class="dashboard-grid">
+                
+                <!-- Панели Рост: Паролҳои маҳфузшудаи корбар -->
+                <div class="panel">
+                    <div class="panel-header">
+                        <h2>📋 Паролҳои сабтшудаи шумо</h2>
+                    </div>
+                    <div id="passwordsContainer">
+                        <p style="color: var(--text-secondary); font-size: 14px;">Бор шуда истодааст...</p>
+                    </div>
+                </div>
+
+                <!-- Панели Чап: Формаи Иловаи Парол -->
+                <div class="panel">
+                    <div class="panel-header">
+                        <h2>➕ Иловаи зуд</h2>
+                    </div>
+
+                    <label style="font-size: 12px; color: var(--text-secondary); margin-bottom: 8px; display: block;">Интихоби бӯрро:</label>
+                    <div class="quick-tags">
+                        <div class="tag" onclick="setService('Facebook')">Facebook</div>
+                        <div class="tag" onclick="setService('Google')">Google</div>
+                        <div class="tag" onclick="setService('Instagram')">Instagram</div>
+                        <div class="tag" onclick="setService('VKontakte')">VKontakte</div>
+                        <div class="tag" onclick="setService('Telegram')">Telegram</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Номи хизмат:</label>
+                        <input type="text" id="serviceInput" placeholder="Масалан: Instagram">
+                    </div>
+                    <div class="form-group">
+                        <label>Емаил ё Логин:</label>
+                        <input type="text" id="usernameInput" placeholder="user@gmail.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Парол:</label>
+                        <input type="text" id="passwordInput" placeholder="Пароли шумо">
+                    </div>
+                    <button class="btn btn-primary" onclick="addPassword()">➕ Сабт кардан</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- === 3. Логика ва Скриптҳои Firebase === -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // ⚙️ МАЪЛУМОТИ FIREBASE-И ХУДРО ИН ҶО ГУЗОРИД:
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let currentUser = null;
+        let isRegisterMode = false;
+
+        // Табдил додани ҳолати Auth (Login / Register)
+        window.toggleAuthMode = function() {
+            isRegisterMode = !isRegisterMode;
+            const title = document.getElementById('authTitle');
+            const btn = document.getElementById('authBtn');
+            const switchText = document.querySelector('.switch-auth');
+
+            if (isRegisterMode) {
+                title.innerText = "Сабти ном";
+                btn.innerText = "Хатм кардан";
+                switchText.innerHTML = "Ҳисоб доред? <span>Ворид шавед</span>";
+            } else {
+                title.innerText = "Воридшавӣ";
+                btn.innerText = "Даромадан";
+                switchText.innerHTML = "Ҳисоб надоред? <span>Сабти ном</span>";
+            }
+        }
+
+        // Вуруд ё Сабти Ном
+        window.handleAuth = async function() {
+            const email = document.getElementById('authEmail').value.trim();
+            const pass = document.getElementById('authPassword').value.trim();
+            if(!email || !pass) return alert("Лутфан майдонҳоро пур кунед!");
+            
+            try {
+                if (isRegisterMode) {
+                    await createUserWithEmailAndPassword(auth, email, pass);
+                    alert("Ҳисоб бо муваффақият сохта шуд!");
+                } else {
+                    await signInWithEmailAndPassword(auth, email, pass);
+                }
+            } catch (e) { 
+                alert("Хатогӣ: " + e.message); 
+            }
+        }
+
+        // Баромадан аз аккаунт
+        window.logout = async function() { 
+            await signOut(auth); 
+        }
+
+        // Пур кардани номи хизмат аз тугмаҳои зуд
+        window.setService = function(name) {
+            document.getElementById('serviceInput').value = name;
+        }
+
+        // Илова кардани пароли нав
+        window.addPassword = async function() {
+            const service = document.getElementById('serviceInput').value.trim();
+            const username = document.getElementById('usernameInput').value.trim();
+            const password = document.getElementById('passwordInput').value.trim();
+
+            if (!service || !username || !password) {
+                alert("Лутфан ҳамаи маълумотро ворид кунед!");
+                return;
+            }
+
+            try {
+                await addDoc(collection(db, "passwords"), {
+                    userId: currentUser.uid,
+                    service: service,
+                    username: username,
+                    password: password,
+                    createdAt: new Date()
+                });
+
+                document.getElementById('serviceInput').value = '';
+                document.getElementById('usernameInput').value = '';
+                document.getElementById('passwordInput').value = '';
+
+                loadUserPasswords();
+            } catch (e) {
+                alert("Хатогӣ ҳангоми сабт: " + e.message);
+            }
+        }
+
+        // Бор кардани паролҳои танҳо худи корбар
+        async function loadUserPasswords() {
+            const container = document.getElementById('passwordsContainer');
+            container.innerHTML = '<p style="color: var(--text-secondary); font-size: 13px;">Бор шуда истодааст...</p>';
+
+            try {
+                const q = query(collection(db, "passwords"), where("userId", "==", currentUser.uid));
+                const querySnapshot = await getDocs(q);
+
+                container.innerHTML = '';
+                if (querySnapshot.empty) {
+                    container.innerHTML = '<p style="color: var(--text-secondary); font-size: 13px;">Шумо ҳеҷ пароле сабт накардаед.</p>';
+                    return;
+                }
+
+                querySnapshot.forEach((docSnap) => {
+                    const data = docSnap.data();
+                    const docId = docSnap.id;
+
+                    const card = document.createElement('div');
+                    card.className = 'password-card';
+                    card.innerHTML = `
+                        <div class="password-info">
+                            <p><strong>📌 Хизмат:</strong> ${data.service}</p>
+                            <p><strong>👤 Логин:</strong> ${data.username}</p>
+                            <p><strong>🔑 Парол:</strong> <code>${data.password}</code></p>
+                        </div>
+                        <button class="btn btn-danger" onclick="deletePassword('${docId}')">Нест кардан</button>
+                    `;
+                    container.appendChild(card);
+                });
+            } catch (e) {
+                container.innerHTML = '<p style="color: var(--danger);">Хатогӣ ҳангоми гирифтани маълумот.</p>';
+            }
+        }
+
+        // Нест кардани парол
+        window.deletePassword = async function(docId) {
+            if (confirm("Оё мехоҳед ин паролро нест кунед?")) {
+                try {
+                    await deleteDoc(doc(db, "passwords", docId));
+                    loadUserPasswords();
+                } catch (e) {
+                    alert("Хатогӣ дар несткунӣ: " + e.message);
+                }
+            }
+        }
+
+        // Мониторинги воридшавӣ
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                document.getElementById('authScreen').style.display = 'none';
+                document.getElementById('appScreen').style.display = 'flex';
+                
+                const namePart = user.email.split('@')[0];
+                document.getElementById('helloName').innerText = namePart;
+                document.getElementById('userName').innerText = user.email;
+                document.getElementById('userInitials').innerText = user.email[0].toUpperCase();
+
+                loadUserPasswords();
+            } else {
+                currentUser = null;
+                document.getElementById('authScreen').style.display = 'flex';
+                document.getElementById('appScreen').style.display = 'none';
+            }
+        });
+
+    </script>
+</body>
+</html>
