@@ -84,6 +84,7 @@
             transition: all 0.2s ease;
             font-size: 14px;
             font-weight: 500;
+            cursor: pointer;
         }
 
         .nav-links a:hover, .nav-links a.active {
@@ -168,6 +169,15 @@
             transform: translateY(-50%);
             color: var(--text-secondary);
             font-size: 14px;
+        }
+
+        /* --- Sections (Қисмҳо) --- */
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active-section {
+            display: block;
         }
 
         /* --- Grid Layout --- */
@@ -358,7 +368,7 @@
 </head>
 <body>
 
-    <!-- === 1. Саҳифаи Вуруд ва Сабти Ном === -->
+    <!-- === Саҳифаи Вуруд ва Сабти Ном === -->
     <div class="auth-container" id="authScreen">
         <div class="panel auth-box">
             <div class="logo">
@@ -381,7 +391,7 @@
         </div>
     </div>
 
-    <!-- === 2. Саҳифаи Асосии Dashboard === -->
+    <!-- === Саҳифаи Асосии Dashboard === -->
     <div id="appScreen" style="display: none; width: 100%;">
         
         <!-- Sidebar -->
@@ -391,10 +401,10 @@
                 <span>SafeVault</span>
             </div>
             <ul class="nav-links">
-                <li><a href="#" class="active"><i class="fas fa-th-large"></i> Dashboard</a></li>
-                <li><a href="#"><i class="fas fa-key"></i> Паролҳо</a></li>
-                <li><a href="#"><i class="fas fa-user-shield"></i> Амният</a></li>
-                <li><a href="#"><i class="fas fa-cog"></i> Танзимот</a></li>
+                <li><a onclick="switchTab('dashboard', this)" class="active" id="nav-dashboard"><i class="fas fa-th-large"></i> Dashboard</a></li>
+                <li><a onclick="switchTab('passwords', this)" id="nav-passwords"><i class="fas fa-key"></i> Паролҳо</a></li>
+                <li><a onclick="switchTab('security', this)" id="nav-security"><i class="fas fa-user-shield"></i> Амният</a></li>
+                <li><a onclick="switchTab('settings', this)" id="nav-settings"><i class="fas fa-cog"></i> Танзимот</a></li>
             </ul>
             <div class="user-profile">
                 <div class="user-avatar" id="userInitials">U</div>
@@ -408,78 +418,121 @@
 
         <!-- Main Content -->
         <div class="main-content">
-            <header>
-                <h1>Хуш омадед, <span id="helloName" style="color: var(--text-secondary);">Корбар</span> 👋</h1>
-                <div class="header-tools">
-                    <div class="search-bar">
-                        <i class="fas fa-search"></i>
-                        <input type="text" placeholder="Ҷустуҷӯ...">
+            
+            <!-- 1. DASHBOARD SECTION -->
+            <div id="section-dashboard" class="content-section active-section">
+                <header>
+                    <h1>Хуш омадед, <span id="helloName" style="color: var(--text-secondary);">Корбар</span> 👋</h1>
+                </header>
+
+                <div class="dashboard-grid">
+                    <div class="panel">
+                        <div class="panel-header">
+                            <h2>📋 Паролҳои сабтшудаи шумо</h2>
+                        </div>
+                        <div id="passwordsContainer">
+                            <p style="color: var(--text-secondary); font-size: 13px;">Бор шуда истодааст...</p>
+                        </div>
+                    </div>
+
+                    <div class="panel">
+                        <div class="panel-header">
+                            <h2>➕ Иловаи зуд</h2>
+                        </div>
+                        <div class="quick-tags">
+                            <div class="tag" onclick="setService('Facebook')">Facebook</div>
+                            <div class="tag" onclick="setService('Google')">Google</div>
+                            <div class="tag" onclick="setService('Instagram')">Instagram</div>
+                            <div class="tag" onclick="setService('VKontakte')">VKontakte</div>
+                            <div class="tag" onclick="setService('Telegram')">Telegram</div>
+                        </div>
+                        <div class="form-group">
+                            <label>Номи хизмат:</label>
+                            <input type="text" id="serviceInput" placeholder="Масалан: Instagram">
+                        </div>
+                        <div class="form-group">
+                            <label>Емаил ё Логин:</label>
+                            <input type="text" id="usernameInput" placeholder="user@gmail.com">
+                        </div>
+                        <div class="form-group">
+                            <label>Парол:</label>
+                            <input type="text" id="passwordInput" placeholder="Пароли шумо">
+                        </div>
+                        <button class="btn btn-primary" onclick="addPassword()">➕ Сабт кардан</button>
                     </div>
                 </div>
-            </header>
-
-            <div class="dashboard-grid">
-                
-                <!-- Панели Рост: Паролҳои маҳфузшудаи корбар -->
-                <div class="panel">
-                    <div class="panel-header">
-                        <h2>📋 Паролҳои сабтшудаи шумо</h2>
-                    </div>
-                    <div id="passwordsContainer">
-                        <p style="color: var(--text-secondary); font-size: 14px;">Бор шуда истодааст...</p>
-                    </div>
-                </div>
-
-                <!-- Панели Чап: Формаи Иловаи Парол -->
-                <div class="panel">
-                    <div class="panel-header">
-                        <h2>➕ Иловаи зуд</h2>
-                    </div>
-
-                    <label style="font-size: 12px; color: var(--text-secondary); margin-bottom: 8px; display: block;">Интихоби бӯрро:</label>
-                    <div class="quick-tags">
-                        <div class="tag" onclick="setService('Facebook')">Facebook</div>
-                        <div class="tag" onclick="setService('Google')">Google</div>
-                        <div class="tag" onclick="setService('Instagram')">Instagram</div>
-                        <div class="tag" onclick="setService('VKontakte')">VKontakte</div>
-                        <div class="tag" onclick="setService('Telegram')">Telegram</div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Номи хизмат:</label>
-                        <input type="text" id="serviceInput" placeholder="Масалан: Instagram">
-                    </div>
-                    <div class="form-group">
-                        <label>Емаил ё Логин:</label>
-                        <input type="text" id="usernameInput" placeholder="user@gmail.com">
-                    </div>
-                    <div class="form-group">
-                        <label>Парол:</label>
-                        <input type="text" id="passwordInput" placeholder="Пароли шумо">
-                    </div>
-                    <button class="btn btn-primary" onclick="addPassword()">➕ Сабт кардан</button>
-                </div>
-
             </div>
+
+            <!-- 2. PASSWORDS SECTION -->
+            <div id="section-passwords" class="content-section">
+                <header>
+                    <h1>Ҳамаи Паролҳои Маҳфуз</h1>
+                </header>
+                <div class="panel">
+                    <div class="panel-header">
+                        <h2>🔐 Рӯйхати муфассали махзан</h2>
+                    </div>
+                    <div id="fullPasswordsContainer">
+                        <p style="color: var(--text-secondary);">Маълумот бор шуда истодааст...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. SECURITY SECTION -->
+            <div id="section-security" class="content-section">
+                <header>
+                    <h1>Танзимоти Амният</h1>
+                </header>
+                <div class="panel" style="max-width: 600px;">
+                    <div class="panel-header">
+                        <h2>🛡️ Ҳолати ҳисоби шумо</h2>
+                    </div>
+                    <p style="color: var(--text-secondary); font-size: 14px; line-height: 1.6;">
+                        Ҳисоби шумо бо протоколҳои муосири шифркунии Firebase ҳифз шудааст. Ҳамаи паролҳо тавассути شناсоии шахсии шумо (UID) аз дигарон ҷудо нигоҳ дошта мешаванд.
+                    </p>
+                    <div style="margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.03); border: 1px solid var(--panel-border); border-radius: 10px;">
+                        <p style="margin: 0; font-size: 13px; color: var(--text-primary);">✅ **Статус:** Ҳимояи абрӣ фаъол аст</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. SETTINGS SECTION -->
+            <div id="section-settings" class="content-section">
+                <header>
+                    <h1>Танзимоти Барнома</h1>
+                </header>
+                <div class="panel" style="max-width: 600px;">
+                    <div class="panel-header">
+                        <h2>⚙️ Маълумоти Профил</h2>
+                    </div>
+                    <div class="form-group">
+                        <label>Емаили фаъол:</label>
+                        <input type="text" id="settingsEmail" disabled style="opacity: 0.7; cursor: not-allowed;">
+                    </div>
+                    <p style="color: var(--text-secondary); font-size: 13px; margin-top: 15px;">
+                        Дизайн: <code style="color: #fff;">Monochrome Dark Mode (Сиёҳу Сафед)</code>
+                    </p>
+                </div>
+            </div>
+
         </div>
     </div>
 
-    <!-- === 3. Логика ва Скриптҳои Firebase === -->
+    <!-- === Логика ва Скриптҳои Firebase === -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         // ⚙️ МАЪЛУМОТИ FIREBASE-И ХУДРО ИН ҶО ГУЗОРИД:
-    const firebaseConfig = {
-  apiKey: "AIzaSyA-yur7DVNcS69oLivpBJz1dCsaWby2jvQ",
-  authDomain: "safevault-e43e3.firebaseapp.com",
-  projectId: "safevault-e43e3",
-  storageBucket: "safevault-e43e3.firebasestorage.app",
-  messagingSenderId: "387798720730",
-  appId: "1:387798720730:web:85e9e72a91ec08217f45e3",
-  measurementId: "G-LHCXWNBGWE"
-};
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
@@ -488,7 +541,20 @@
         let currentUser = null;
         let isRegisterMode = false;
 
-        // Табдил додани ҳолати Auth (Login / Register)
+        // Иваз кардани Tab-ҳо (Қисмҳои садебар)
+        window.switchTab = function(tabName, element) {
+            document.querySelectorAll('.content-section').forEach(sec => sec.classList.remove('active-section'));
+            document.querySelectorAll('.nav-links a').forEach(link => link.classList.remove('active'));
+
+            document.getElementById('section-' + tabName).classList.add('active-section');
+            if(element) element.classList.add('active');
+
+            if(tabName === 'passwords' || tabName === 'dashboard') {
+                loadUserPasswords();
+            }
+        }
+
+        // Табдил додани ҳолати Auth
         window.toggleAuthMode = function() {
             isRegisterMode = !isRegisterMode;
             const title = document.getElementById('authTitle');
@@ -506,7 +572,6 @@
             }
         }
 
-        // Вуруд ё Сабти Ном
         window.handleAuth = async function() {
             const email = document.getElementById('authEmail').value.trim();
             const pass = document.getElementById('authPassword').value.trim();
@@ -524,17 +589,14 @@
             }
         }
 
-        // Баромадан аз аккаунт
         window.logout = async function() { 
             await signOut(auth); 
         }
 
-        // Пур кардани номи хизмат аз тугмаҳои зуд
         window.setService = function(name) {
             document.getElementById('serviceInput').value = name;
         }
 
-        // Илова кардани пароли нав
         window.addPassword = async function() {
             const service = document.getElementById('serviceInput').value.trim();
             const username = document.getElementById('usernameInput').value.trim();
@@ -559,23 +621,29 @@
                 document.getElementById('passwordInput').value = '';
 
                 loadUserPasswords();
+                alert("Парол бо муваффақият сабт шуд!");
             } catch (e) {
                 alert("Хатогӣ ҳангоми сабт: " + e.message);
             }
         }
 
-        // Бор кардани паролҳои танҳо худи корбар
         async function loadUserPasswords() {
             const container = document.getElementById('passwordsContainer');
-            container.innerHTML = '<p style="color: var(--text-secondary); font-size: 13px;">Бор шуда истодааст...</p>';
+            const fullContainer = document.getElementById('fullPasswordsContainer');
+            
+            const loadingHTML = '<p style="color: var(--text-secondary); font-size: 13px;">Бор шуда истодааст...</p>';
+            container.innerHTML = loadingHTML;
+            if(fullContainer) fullContainer.innerHTML = loadingHTML;
 
             try {
                 const q = query(collection(db, "passwords"), where("userId", "==", currentUser.uid));
                 const querySnapshot = await getDocs(q);
 
-                container.innerHTML = '';
+                let content = '';
                 if (querySnapshot.empty) {
-                    container.innerHTML = '<p style="color: var(--text-secondary); font-size: 13px;">Шумо ҳеҷ пароле сабт накардаед.</p>';
+                    content = '<p style="color: var(--text-secondary); font-size: 13px;">Шумо ҳеҷ пароле сабт накардаед.</p>';
+                    container.innerHTML = content;
+                    if(fullContainer) fullContainer.innerHTML = content;
                     return;
                 }
 
@@ -583,24 +651,27 @@
                     const data = docSnap.data();
                     const docId = docSnap.id;
 
-                    const card = document.createElement('div');
-                    card.className = 'password-card';
-                    card.innerHTML = `
-                        <div class="password-info">
-                            <p><strong>📌 Хизмат:</strong> ${data.service}</p>
-                            <p><strong>👤 Логин:</strong> ${data.username}</p>
-                            <p><strong>🔑 Парол:</strong> <code>${data.password}</code></p>
+                    content += `
+                        <div class="password-card">
+                            <div class="password-info">
+                                <p><strong>📌 Хизмат:</strong> ${data.service}</p>
+                                <p><strong>👤 Логин:</strong> ${data.username}</p>
+                                <p><strong>🔑 Парол:</strong> <code>${data.password}</code></p>
+                            </div>
+                            <button class="btn btn-danger" onclick="deletePassword('${docId}')">Нест кардан</button>
                         </div>
-                        <button class="btn btn-danger" onclick="deletePassword('${docId}')">Нест кардан</button>
                     `;
-                    container.appendChild(card);
                 });
+
+                container.innerHTML = content;
+                if(fullContainer) fullContainer.innerHTML = content;
             } catch (e) {
-                container.innerHTML = '<p style="color: var(--danger);">Хатогӣ ҳангоми гирифтани маълумот.</p>';
+                const errHTML = '<p style="color: var(--danger);">Хатогӣ ҳангоми гирифтани маълумот.</p>';
+                container.innerHTML = errHTML;
+                if(fullContainer) fullContainer.innerHTML = errHTML;
             }
         }
 
-        // Нест кардани парол
         window.deletePassword = async function(docId) {
             if (confirm("Оё мехоҳед ин паролро нест кунед?")) {
                 try {
@@ -612,7 +683,6 @@
             }
         }
 
-        // Мониторинги воридшавӣ
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 currentUser = user;
@@ -623,6 +693,7 @@
                 document.getElementById('helloName').innerText = namePart;
                 document.getElementById('userName').innerText = user.email;
                 document.getElementById('userInitials').innerText = user.email[0].toUpperCase();
+                document.getElementById('settingsEmail').value = user.email;
 
                 loadUserPasswords();
             } else {
@@ -631,7 +702,6 @@
                 document.getElementById('appScreen').style.display = 'none';
             }
         });
-
     </script>
 </body>
 </html>
